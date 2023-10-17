@@ -14,6 +14,7 @@ En el desarrollo de esta solución se está utilizando las siguientes tecnologí
 - Python 3.10+
 - SQLite 3
 - PySimpleGUI
+- Jinja
 
 ## Módulos planificados y componentes de la aplicación
 
