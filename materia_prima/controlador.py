@@ -152,10 +152,12 @@ def procesar(
             id = valores['id']
             sku = valores['sku']
             nombre = valores['nombre']
-            cantidad = valores['cantidad']
-            unidad = valores['cantidad-unidad']
-            precio = valores['precio']
+            unidad = valores['unidad']
             costo_unitario = valores['costo-unitario']
+            cantidad = valores['cantidad']
+            disponible = valores['disponible']
+            reservado = valores['reservado']
+            dias_vida_util = valores['dias-vida-util']
             estado_activo = valores['estado-activo']
             estado_inactivo = valores['estado-inactivo']
 
@@ -166,16 +168,7 @@ def procesar(
             else:
                 estado = ''
 
-            producto = (
-                sku,
-                nombre,
-                cantidad,
-                unidad,
-                precio,
-                costo_unitario,
-                estado,
-                id
-            )
+            producto = (sku, nombre, cantidad, unidad, disponible, reservado, costo_unitario, estado,dias_vida_util, id)
 
             if validar_actualizacion(producto):
                 exito, msg, id = consultas.modificar(conn=conn, producto=producto)

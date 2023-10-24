@@ -13,12 +13,7 @@ def crear_ventana_listado(conn=None):
 
     col_widths = [max(map(lambda x: len(x) + 7, (map(str, col)))) for col in zip(*data_values)]
     layout = [
-        # [
-        #     psg.Column(
-        #         [[psg.Text('Filtros:', expand_x=True, expand_y=True, justification='right', background_color='red')]],
-        #         expand_x=True, expand_y=True),
-        #     psg.Column([[psg.Input(expand_x=True)], [psg.Input()]], expand_x=True, expand_y=True),
-        # ],
+
         [
             psg.Table(values=data_values,
                       headings=encabezado,
@@ -27,7 +22,6 @@ def crear_ventana_listado(conn=None):
                       num_rows=25,
                       col_widths=col_widths,
                       justification='center',
-                      # col_widths=[4, 6, 20, 6, 6, 6, 6, 6, 6],
                       auto_size_columns=False,
                       enable_events=True,
                       select_mode=psg.TABLE_SELECT_MODE_BROWSE,
@@ -114,54 +108,65 @@ def crear_ventana_actualizacion(dato=None):
     ancho_contenido = 55
     unidades = ['unidad', 'gramos', 'cc', 'cm']
 
-    estado = dato[11]
+    campos =   {'materia_prima_id':0,
+        'sku':1,
+        'nombre':2,
+        'fecha_registro':3,
+        'unidad':4,
+        'costo_unitario':5,
+        'cantidad':6,
+        'disponible':7,
+        'reservado':8,
+        'estado':9,
+        'dias_vida_util':10}
+
+    estado = dato[campos['estado']]
     layout = [
         [
             psg.Text('ID interno', size=(ancho_etiqueta, 1), visible=True, key='id-lbl'),
             psg.Text(dato[0], visible=True, key='id-txt', expand_x=True),
-            psg.Input(visible=False, key='id', default_text=dato[0])
+            psg.Input(visible=False, key='id', default_text=dato[campos['materia_prima_id']])
         ],
         [
             psg.Text('SKU', size=(ancho_etiqueta, 1)),
-            psg.Input(key='sku', size=(ancho_contenido, 1), expand_x=True, default_text=dato[1])
+            psg.Input(key='sku', size=(ancho_contenido, 1), expand_x=True, default_text=dato[campos['sku']])
         ],
         [
             psg.Text('Nombre', size=(ancho_etiqueta, 1)),
-            psg.Input(key='nombre', size=(ancho_contenido, 1), expand_x=True, default_text=dato[2])
+            psg.Input(key='nombre', size=(ancho_contenido, 1), expand_x=True, default_text=dato[campos['nombre']])
         ],
-        # [psg.Text('Fecha', size=(ancho_etiqueta, 1)), psg.Input(key='fecha_input', size=(ancho_contenido,1), disabled=True), psg.CalendarButton('Seleccionar Fecha', target='fecha_input', format='%Y-%m-%d', key='fecha_button')],
         [
             psg.Text('Cantidad', size=(ancho_etiqueta, 1)),
-            psg.Input(key='cantidad', expand_x=True, default_text=dato[5]),
-            # , default_text=producto[6]
-            psg.Combo(unidades, key='cantidad-unidad', size=(10, 1), readonly=True, default_value=unidades[0],
+            psg.Input(key='cantidad', expand_x=True, default_text=dato[campos['cantidad']])
+        ],
+        [
+            psg.Text('Unidad', size=(ancho_etiqueta, 1)),
+            psg.Combo(unidades, key='unidad', size=(10, 1), readonly=True, default_value=dato[campos['unidad']],
                       expand_x=True)
         ],
         [
-            psg.Text('Precio', size=(ancho_etiqueta, 1)),
-            psg.Input(key='precio', size=(ancho_contenido, 1), expand_x=True, default_text=dato[7])
-        ],
-        [
             psg.Text('Costo unitario', size=(ancho_etiqueta, 1)),
-            psg.Input(key='costo-unitario', size=(ancho_contenido, 1), expand_x=True, default_text=dato[8])
+            psg.Input(key='costo-unitario', size=(ancho_contenido, 1), expand_x=True, default_text=dato[campos['costo_unitario']])
         ],
         [
             psg.Text('Disponible', key='disponible-lbl', size=(ancho_etiqueta, 1)),
-            psg.Input(key='disponible', size=(ancho_contenido, 1), expand_x=True, default_text=dato[9],
+            psg.Input(key='disponible', size=(ancho_contenido, 1), expand_x=True, default_text=dato[campos['disponible']],
+                      readonly=True, text_color='black')
+        ],
+        [
+            psg.Text('Días de vida útil', key='dias-vida-util-lbl', size=(ancho_etiqueta, 1)),
+            psg.Input(key='dias-vida-util', size=(ancho_contenido, 1), expand_x=True,
+                      default_text=dato[campos['dias_vida_util']],
                       readonly=True, text_color='black')
         ],
         [
             psg.Text('Reservado', key='reservado-lbl', size=(ancho_etiqueta, 1)),
-            psg.Input(key='reservado', size=(ancho_contenido, 1), expand_x=True, default_text=dato[10],
+            psg.Input(key='reservado', size=(ancho_contenido, 1), expand_x=True, default_text=dato[campos['reservado']],
                       readonly=True, text_color='black')
         ],
         [
             psg.Text('Fecha creación', key='creacion-lbl', size=(ancho_etiqueta, 1)),
-            psg.Text(dato[3], key='creacion', expand_x=True)
-        ],
-        [
-            psg.Text('Fecha modificado', key='modificado-lbl', size=(ancho_etiqueta, 1)),
-            psg.Text(dato[4], key='modificado', expand_x=True)
+            psg.Text(dato[campos['fecha_registro']], key='creacion', expand_x=True)
         ],
         [
             psg.Text('Estado', key='estado-lbl', size=(ancho_etiqueta, 1)),

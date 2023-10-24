@@ -52,19 +52,19 @@ def modificar(conn=None, producto=None):
     exito = True
     msg = 'Operación exitosa'
     id = -1
+
     sql = '''
         update materia_prima 
         set
             sku = ?,
             nombre = ?,
-            fecha_registro = ?,
-            unidad = ?,
-            costo_unitario = ?,
             cantidad = ?,
+            unidad = ?,
             disponible = ?,
             reservado = ?,
+            costo_unitario = ?,
             estado = ?,
-            dias_vida_util = ?,
+            dias_vida_util = ?
         where
             materia_prima_id = ?;
     '''
