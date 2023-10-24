@@ -5,6 +5,7 @@ def registrar(conn=None, producto=None):
     exito = True
     msg = 'Operación exitosa'
     id = -1
+    # (sku, nombre, cantidad, unidad, disponible, reservado, costo_unitario, estado,dias_vida_util)
     sql = '''
         INSERT INTO materia_prima 
         (
@@ -12,12 +13,16 @@ def registrar(conn=None, producto=None):
             nombre,
             cantidad,
             unidad,
-            precio,
+            disponible,
+            reservado,
             costo_unitario,
-            estado
+            estado,
+            dias_vida_util
         )
         VALUES
         (
+            ?,
+            ?,
             ?,
             ?,
             ?,
@@ -52,11 +57,14 @@ def modificar(conn=None, producto=None):
         set
             sku = ?,
             nombre = ?,
-            cantidad = ?,
+            fecha_registro = ?,
             unidad = ?,
-            precio = ?,
             costo_unitario = ?,
-            estado = ?
+            cantidad = ?,
+            disponible = ?,
+            reservado = ?,
+            estado = ?,
+            dias_vida_util = ?,
         where
             materia_prima_id = ?;
     '''
@@ -103,16 +111,16 @@ def eliminar(conn=None, id=None):
 def cargar_tabla(conn=None):
     resultados = conn.execute('''
     select
-          materia_prima_id 
-        , sku
-        , nombre
-        , cantidad
-        , unidad
-        , precio
-        , costo_unitario
-        , disponible
-        , reservado
-        , estado
+        materia_prima_id,
+        sku,
+        nombre,
+        cantidad,
+        disponible,
+        reservado,
+        unidad,
+        costo_unitario,
+        estado,
+        dias_vida_util
     from 
         materia_prima
     where
@@ -127,18 +135,17 @@ def cargar_tabla(conn=None):
 def listar_todos(conn=None):
     resultados = conn.execute('''
     select
-          materia_prima_id 
-        , sku
-        , nombre
-        , fecha_registro
-        , fecha_ultimo_registro
-        , cantidad
-        , unidad
-        , precio
-        , costo_unitario
-        , disponible
-        , reservado
-        , estado
+        materia_prima_id,
+        sku,
+        nombre,
+        fecha_registro,
+        unidad,
+        costo_unitario,
+        cantidad,
+        disponible,
+        reservado,
+        estado,
+        dias_vida_util
     from 
         materia_prima
     ''').fetchall()
@@ -149,18 +156,17 @@ def listar_todos(conn=None):
 def cargar(conn=None, id=-1):
     resultado = conn.execute('''
     select
-          materia_prima_id 
-        , sku
-        , nombre
-        , fecha_registro
-        , fecha_ultimo_registro
-        , cantidad
-        , unidad
-        , precio
-        , costo_unitario
-        , disponible
-        , reservado
-        , estado
+        materia_prima_id,
+        sku,
+        nombre,
+        fecha_registro,
+        unidad,
+        costo_unitario,
+        cantidad,
+        disponible,
+        reservado,
+        estado,
+        dias_vida_util
     from 
         materia_prima
     where

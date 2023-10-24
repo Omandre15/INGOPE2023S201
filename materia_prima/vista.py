@@ -4,8 +4,10 @@ from materia_prima.consultas import *
 import PySimpleGUI as psg
 
 def crear_ventana_listado(conn=None):
-    encabezado = ['Id', 'SKU', 'Nombre', 'Cantidad', 'Unidad',
-                  'Precio', 'Costo Un.', 'Disponible', 'Reservado', 'Estado']
+
+
+    encabezado = ['Id', 'SKU', 'Nombre', 'Cantidad', 'Disponible', 'Reservado', 'Unidad',
+                  'Costo Un.','Estado','Vida útil']
 
     data_values = list(cargar_tabla(conn))
 
@@ -49,7 +51,7 @@ def crear_ventana_listado(conn=None):
 
 
 def crear_ventana_registro():
-    ancho_etiqueta = 15
+    ancho_etiqueta = 20
     ancho_contenido = 55
     unidades = ['unidad', 'gramos', 'cc', 'cm']
 
@@ -62,21 +64,34 @@ def crear_ventana_registro():
             psg.Text('Nombre', size=(ancho_etiqueta, 1)),
             psg.Input(key='nombre', size=(ancho_contenido, 1), expand_x=True)
         ],
-        # [psg.Text('Fecha', size=(ancho_etiqueta, 1)), psg.Input(key='fecha_input', size=(ancho_contenido,1), disabled=True), psg.CalendarButton('Seleccionar Fecha', target='fecha_input', format='%Y-%m-%d', key='fecha_button')],
+
         [
-            psg.Text('Cantidad', size=(ancho_etiqueta, 1)),
-            psg.Input(key='cantidad', expand_x=True),
-            psg.Combo(unidades, key='cantidad-unidad', size=(10, 1), readonly=True, default_value=unidades[0],
+            psg.Text('Unidades', size=(ancho_etiqueta, 1)),
+            psg.Combo(unidades, key='unidad', size=(10, 1), readonly=True, default_value=unidades[0],
                       expand_x=True)
         ],
         [
-            psg.Text('Precio', size=(ancho_etiqueta, 1)),
-            psg.Input(key='precio', size=(ancho_contenido, 1), expand_x=True, default_text='0', )
+            psg.Text('Cantidad', size=(ancho_etiqueta, 1)),
+            psg.Input(key='cantidad', expand_x=True)
+        ],
+        [
+            psg.Text('Disponible', size=(ancho_etiqueta, 1)),
+            psg.Input(key='disponible', expand_x=True)
+        ],
+        [
+            psg.Text('Reservado', size=(ancho_etiqueta, 1)),
+            psg.Input(key='reservado', expand_x=True),
+
+        ],
+        [
+            psg.Text('Días de vida útil', size=(ancho_etiqueta, 1)),
+            psg.Input(key='dias-vida-util', expand_x=True),
         ],
         [
             psg.Text('Costo unitario', size=(ancho_etiqueta, 1)),
             psg.Input(key='costo-unitario', size=(ancho_contenido, 1), expand_x=True)
         ],
+
         [
             psg.Text('Estado', key='estado-lbl', size=(ancho_etiqueta, 1)),
             psg.Radio('Activo', 'estado', default=True, key='estado-activo', expand_x=True),

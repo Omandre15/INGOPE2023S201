@@ -49,18 +49,19 @@ def listar_mensajes_errores_creacion():
 def validar_condiciones_creacion(producto=()):
     if producto:
         # valida los elementos en este orden
-        # (sku, nombre, cantidad, unidad, precio, costo_unitario, estado)
+        # (sku, nombre, cantidad, unidad, disponible, reservado, costo_unitario, estado,dias_vida_util)
         validacion = (
             not utils_validacion.validar_texto_vacio(producto[0]),  # sku
             not utils_validacion.validar_texto_vacio(producto[1]),  # nombre
             utils_validacion.validar_numero_real(producto[2]),  # cantidad
             not utils_validacion.validar_texto_vacio(producto[3]),  # unidad
-            utils_validacion.validar_numero_real(producto[4]),  # precio
-            utils_validacion.validar_numero_real(producto[5]),  # costo_unitario
-            not utils_validacion.validar_texto_vacio(producto[6]),  # estado
-            True if utils_validacion.validar_numero_real(producto[5]) and utils_validacion.validar_numero_real(
-                producto[4]) and float(
-                producto[4]) >= float(producto[5]) else False
+            utils_validacion.validar_numero_real(producto[4]),  # disponible
+            utils_validacion.validar_numero_real(producto[5]),  # reservado
+            utils_validacion.validar_numero_real(producto[6]),  # costo_unitario
+            not utils_validacion.validar_texto_vacio(producto[7]),  # estado
+            utils_validacion.validar_numero_real(producto[8]),  # dias_vida_util
+            True if utils_validacion.validar_numero_real(producto[6])
+                    and float(producto[6]) >= float(0) else False
         )
         return validacion
     else:
@@ -114,14 +115,18 @@ def procesar(
 
 
         elif cmd['det'] == 'create' and cmd['act'] == 'ok':
+
             sku = valores['sku']
             nombre = valores['nombre']
-            cantidad = valores['cantidad']
-            unidad = valores['cantidad-unidad']
-            precio = valores['precio']
+            unidad = valores['unidad']
             costo_unitario = valores['costo-unitario']
+            cantidad = valores['cantidad']
+            disponible = valores['disponible']
+            reservado = valores['reservado']
             estado = 'activo'
-            producto = (sku, nombre, cantidad, unidad, precio, costo_unitario, estado)
+            dias_vida_util = valores['dias-vida-util']
+
+            producto = (sku, nombre, cantidad, unidad, disponible, reservado, costo_unitario, estado,dias_vida_util)
             if validar_creacion(producto):
                 exito, msg, id = consultas.registrar(conn=conn, producto=producto)
                 if exito:
