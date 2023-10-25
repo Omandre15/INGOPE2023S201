@@ -2,39 +2,36 @@ import materia_prima.vista as vistas
 import materia_prima.consultas as consultas
 import utils.validaciones as utils_validacion
 import utils.ventana as utils_ventana
+from materia_prima.materia_prima import MateriaPrima
 
 import PySimpleGUI as psg
 
 
 def listar_mensajes_errores_actualizacion():
     # debe corresponder a lista de validación
-    return ('Revise SKU', 'Revise el nombre', 'Revise la cantidad', 'Revise la unidad', 'Revise el precio',
-            'Revise el costo unitario', 'Revise el estado', 'Revisar: costo por encima del precio')
+    return ('Revise SKU', 'Revise el nombre', 'Revise la cantidad', 'Revise la unidad',
+            'Revise el costo unitario', 'Revise el estado')
 
 
-def validar_condiciones_actualizacion(producto=()):
-    if producto:
-        # valida los elementos en este orden
+def validar_condiciones_actualizacion(dato: MateriaPrima):
+    if dato:
+        # tiene que coincidir con el orden y cantidad de los mensajes en def listar_mensajes_errores_actualizacion()
         validacion = (
-            not utils_validacion.validar_texto_vacio(producto[0]),  # sku
-            not utils_validacion.validar_texto_vacio(producto[1]),  # nombre
-            utils_validacion.validar_numero_real(producto[2]),  # cantidad
-            not utils_validacion.validar_texto_vacio(producto[3]),  # unidad
-            utils_validacion.validar_numero_real(producto[4]),  # precio
-            utils_validacion.validar_numero_real(producto[5]),  # costo_unitario
-            not utils_validacion.validar_texto_vacio(producto[6]),  # estado
-            True if utils_validacion.validar_numero_real(producto[5]) and utils_validacion.validar_numero_real(
-                producto[4]) and float(
-                producto[4]) >= float(producto[5]) else False
+            not utils_validacion.validar_texto_vacio(dato.sku),  # sku
+            not utils_validacion.validar_texto_vacio(dato.nombre),  # nombre
+            utils_validacion.validar_numero_real(dato.cantidad),  # cantidad
+            not utils_validacion.validar_texto_vacio(dato.unidad),  # unidad
+            utils_validacion.validar_numero_real(dato.costo_unitario),  # costo_unitario
+            not utils_validacion.validar_texto_vacio(dato.estado)  # estado
         )
         return validacion
     else:
         return ()
 
 
-def validar_actualizacion(producto=()):
-    if producto:
-        validacion = validar_condiciones_creacion(producto)
+def validar_actualizacion(dato: MateriaPrima):
+    if dato:
+        validacion = validar_condiciones_creacion(dato)
         return all(validacion)
     else:
         return False
@@ -43,34 +40,30 @@ def validar_actualizacion(producto=()):
 def listar_mensajes_errores_creacion():
     # debe corresponder a lista de validación
     return ('Revise SKU', 'Revise el nombre', 'Revise la cantidad', 'Revise la unidad', 'Revise el precio',
-            'Revise el costo unitario', 'Revise el estado', 'Revisar: costo por encima del precio')
+            'Revise el costo unitario', 'Revise el estado')
 
 
-def validar_condiciones_creacion(producto=()):
-    if producto:
-        # valida los elementos en este orden
-        # (sku, nombre, cantidad, unidad, disponible, reservado, costo_unitario, estado,dias_vida_util)
+def validar_condiciones_creacion(dato: MateriaPrima):
+    if dato:
         validacion = (
-            not utils_validacion.validar_texto_vacio(producto[0]),  # sku
-            not utils_validacion.validar_texto_vacio(producto[1]),  # nombre
-            utils_validacion.validar_numero_real(producto[2]),  # cantidad
-            not utils_validacion.validar_texto_vacio(producto[3]),  # unidad
-            utils_validacion.validar_numero_real(producto[4]),  # disponible
-            utils_validacion.validar_numero_real(producto[5]),  # reservado
-            utils_validacion.validar_numero_real(producto[6]),  # costo_unitario
-            not utils_validacion.validar_texto_vacio(producto[7]),  # estado
-            utils_validacion.validar_numero_real(producto[8]),  # dias_vida_util
-            True if utils_validacion.validar_numero_real(producto[6])
-                    and float(producto[6]) >= float(0) else False
+            not utils_validacion.validar_texto_vacio(dato.sku),  # sku
+            not utils_validacion.validar_texto_vacio(dato.nombre),  # nombre
+            utils_validacion.validar_numero_real(dato.cantidad),  # cantidad
+            not utils_validacion.validar_texto_vacio(dato.unidad),  # unidad
+            utils_validacion.validar_numero_real(dato.disponible),  # disponible
+            utils_validacion.validar_numero_real(dato.reservado),  # reservado
+            utils_validacion.validar_numero_real(dato.costo_unitario),  # costo_unitario
+            not utils_validacion.validar_texto_vacio(dato.estado),  # estado
+            utils_validacion.validar_numero_real(dato.dias_vida_util)  # dias_vida_util
         )
         return validacion
     else:
-        return ()
+        return None
 
 
-def validar_creacion(producto=()):
-    if producto:
-        validacion = validar_condiciones_creacion(producto)
+def validar_creacion(dato: MateriaPrima):
+    if dato:
+        validacion = validar_condiciones_creacion(dato)
         return all(validacion)
     else:
         return False
@@ -96,8 +89,8 @@ def procesar(
                                                                            nombre_tabla=nombre_tabla, valores=valores)
             if data_selected:
                 selected = int(data_selected[0][0])
-                producto = consultas.cargar(conn=conn, id=selected)
-                ventana = vistas.crear_ventana_actualizacion(producto)
+                dato:MateriaPrima = consultas.cargar(conn=conn, id=selected)
+                ventana = vistas.crear_ventana_actualizacion(dato)
             else:
                 psg.popup('No se ha seleccionado un dato', title='Paso obligatorio')
 
@@ -108,27 +101,28 @@ def procesar(
                                                                            nombre_tabla=nombre_tabla, valores=valores)
             if data_selected:
                 selected = int(data_selected[0][0])
-                producto = consultas.cargar(conn=conn, id=selected)
-                ventana = vistas.crear_ventana_eliminacion(producto)
+                dato:MateriaPrima = consultas.cargar(conn=conn, id=selected)
+                ventana = vistas.crear_ventana_eliminacion(dato)
             else:
                 psg.popup('No se ha seleccionado un dato', title='Paso obligatorio')
 
 
         elif cmd['det'] == 'create' and cmd['act'] == 'ok':
 
-            sku = valores['sku']
-            nombre = valores['nombre']
-            unidad = valores['unidad']
-            costo_unitario = valores['costo-unitario']
-            cantidad = valores['cantidad']
-            disponible = valores['disponible']
-            reservado = valores['reservado']
-            estado = 'activo'
-            dias_vida_util = valores['dias-vida-util']
+            materia_prima = MateriaPrima()
+            materia_prima.sku = valores['sku']
+            materia_prima.nombre = valores['nombre']
+            materia_prima.unidad = valores['unidad']
+            materia_prima.costo_unitario = valores['costo-unitario']
+            materia_prima.cantidad = valores['cantidad']
+            materia_prima.disponible = valores['disponible']
+            materia_prima.reservado = valores['reservado']
+            materia_prima.dias_vida_util = valores['dias-vida-util']
+            # Este campo es constante por eso se pone directo al momento de la creación
+            materia_prima.estado = 'activo'
 
-            producto = (sku, nombre, cantidad, unidad, disponible, reservado, costo_unitario, estado,dias_vida_util)
-            if validar_creacion(producto):
-                exito, msg, id = consultas.registrar(conn=conn, producto=producto)
+            if validar_creacion(materia_prima):
+                exito, msg, id = consultas.registrar(conn=conn, dato=materia_prima)
                 if exito:
                     ventana_actual.close()
                     ventana_actual = None
@@ -142,36 +136,36 @@ def procesar(
 
             else:
                 mensajes_error = listar_mensajes_errores_creacion()
-                indicadores_error = validar_condiciones_creacion(producto)
+                indicadores_error = validar_condiciones_creacion(dato=materia_prima)
                 mensaje = '\n'.join(
                     [i[1] for i in filter(lambda x: not x[0], list(zip(indicadores_error, mensajes_error)))])
                 psg.popup_error(mensaje, title='Revise para continuar')
 
 
         elif cmd['det'] == 'update' and cmd['act'] == 'ok':
-            id = valores['id']
-            sku = valores['sku']
-            nombre = valores['nombre']
-            unidad = valores['unidad']
-            costo_unitario = valores['costo-unitario']
-            cantidad = valores['cantidad']
-            disponible = valores['disponible']
-            reservado = valores['reservado']
-            dias_vida_util = valores['dias-vida-util']
+            materia_prima = MateriaPrima()
+            materia_prima.materia_prima_id = valores['id']
+            materia_prima.sku = valores['sku']
+            materia_prima.nombre = valores['nombre']
+            materia_prima.unidad = valores['unidad']
+            materia_prima.costo_unitario = valores['costo-unitario']
+            materia_prima.cantidad = valores['cantidad']
+            materia_prima.disponible = valores['disponible']
+            materia_prima.reservado = valores['reservado']
+            materia_prima.dias_vida_util = valores['dias-vida-util']
             estado_activo = valores['estado-activo']
             estado_inactivo = valores['estado-inactivo']
 
+            # Como estado lo recupera de un radiobutton hay que ver el estado de cada botón
             if estado_activo:
-                estado = 'activo'
+                materia_prima.estado = 'activo'
             elif estado_inactivo:
-                estado = 'inactivo'
+                materia_prima. estado = 'inactivo'
             else:
-                estado = ''
+                materia_prima.estado = ''
 
-            producto = (sku, nombre, cantidad, unidad, disponible, reservado, costo_unitario, estado,dias_vida_util, id)
-
-            if validar_actualizacion(producto):
-                exito, msg, id = consultas.modificar(conn=conn, producto=producto)
+            if validar_actualizacion(materia_prima):
+                exito, msg, id = consultas.modificar(conn=conn, dato=materia_prima)
                 if exito:
                     ventana_actual.close()
                     ventana_actual = None
@@ -184,7 +178,7 @@ def procesar(
                     psg.popup_error(msg, title='Error')
             else:
                 mensajes_error = listar_mensajes_errores_actualizacion()
-                indicadores_error = validar_condiciones_actualizacion(producto)
+                indicadores_error = validar_condiciones_actualizacion(materia_prima)
                 mensaje = '\n'.join(
                     [i[1] for i in filter(lambda x: not x[0], list(zip(indicadores_error, mensajes_error)))])
                 psg.popup_error(mensaje, title='Revise para continuar')

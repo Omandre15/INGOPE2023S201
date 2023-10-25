@@ -24,8 +24,8 @@ def main():
 
     while True:
         window, event, values = psg.read_all_windows()
-        print(event)
-        print(values)
+        # print(event)
+        # print(values)
         if event is not None and event.startswith('evt:'):
             cmd = dict([tuple(part.split(':')) for part in event.split(';')])
             if cmd['evt'] == 'product':

@@ -1,11 +1,14 @@
 import sqlite3
+from typing import Dict, List, Any
+
+from materia_prima.materia_prima import MateriaPrima
 
 
-def registrar(conn=None, producto=None):
+def registrar(conn=None, dato: MateriaPrima = None):
     exito = True
     msg = 'Operación exitosa'
     id = -1
-    # (sku, nombre, cantidad, unidad, disponible, reservado, costo_unitario, estado,dias_vida_util)
+
     sql = '''
         INSERT INTO materia_prima 
         (
@@ -35,7 +38,10 @@ def registrar(conn=None, producto=None):
 
     cursor = conn.cursor()
     try:
-        cursor.execute(sql, producto)
+
+        valores = (dato.sku, dato.nombre,dato.cantidad, dato.unidad, dato.disponible, dato.reservado, dato.costo_unitario, dato.estado, dato.dias_vida_util)
+
+        cursor.execute(sql, valores)
         conn.commit()
     except sqlite3.IntegrityError as e:
         msg = str(e)
@@ -48,7 +54,8 @@ def registrar(conn=None, producto=None):
 
     return exito, msg, id
 
-def modificar(conn=None, producto=None):
+
+def modificar(conn=None, dato: MateriaPrima = None):
     exito = True
     msg = 'Operación exitosa'
     id = -1
@@ -71,7 +78,11 @@ def modificar(conn=None, producto=None):
 
     cursor = conn.cursor()
     try:
-        cursor.execute(sql, producto)
+        valores = (
+        dato.sku, dato.nombre, dato.cantidad, dato.unidad, dato.disponible, dato.reservado, dato.costo_unitario,
+        dato.estado, dato.dias_vida_util, dato.materia_prima_id)
+
+        cursor.execute(sql, valores)
         conn.commit()
     except sqlite3.IntegrityError as e:
         msg = str(e)
@@ -83,6 +94,7 @@ def modificar(conn=None, producto=None):
     cursor.close()
 
     return exito, msg, id
+
 
 def eliminar(conn=None, id=None):
     exito = True
@@ -102,37 +114,33 @@ def eliminar(conn=None, id=None):
         exito = False
         conn.rollback()
 
-  #  id = cursor.lastrowid
+    #  id = cursor.lastrowid
 
     cursor.close()
 
     return exito, msg, id
 
+
 def cargar_tabla(conn=None):
-    resultados = conn.execute('''
-    select
-        materia_prima_id,
-        sku,
-        nombre,
-        cantidad,
-        disponible,
-        reservado,
-        unidad,
-        costo_unitario,
-        estado,
-        dias_vida_util
-    from 
-        materia_prima
-    where
-        estado in ('activo', 'inactivo')
-    order by
-        nombre, sku
-    ''').fetchall()
+    listado = listar_todos(conn=conn)
+    salida = []
 
-    return resultados
+    filtro = lambda dato: dato.estado == 'activo' or dato.estado == 'inactivo'
+    ordenar = lambda dato: dato.nombre
+
+    listado.sort(key=ordenar)
+    listado = list(filter(filtro, listado))
+
+    salida = [(
+        dato.materia_prima_id, dato.sku, dato.nombre, dato.cantidad, dato.disponible, dato.reservado, dato.unidad,
+        dato.costo_unitario, dato.estado, dato.dias_vida_util) for dato in listado]
+
+    return salida
 
 
-def listar_todos(conn=None):
+def listar_todos(conn=None) -> List[MateriaPrima]:
+    salida = []
+    conn.row_factory = sqlite3.Row
     resultados = conn.execute('''
     select
         materia_prima_id,
@@ -150,10 +158,14 @@ def listar_todos(conn=None):
         materia_prima
     ''').fetchall()
 
-    return resultados
+    for resultado in resultados:
+        salida.append(convertirDictEnObjeto(convertirRowEnDict(resultado)))
+
+    return salida
 
 
-def cargar(conn=None, id=-1):
+def cargar(conn=None, id=-1) -> MateriaPrima:
+    conn.row_factory = sqlite3.Row
     resultado = conn.execute('''
     select
         materia_prima_id,
@@ -173,4 +185,24 @@ def cargar(conn=None, id=-1):
         materia_prima_id = ?
     ''', (id,)).fetchone()
 
-    return resultado
+    return convertirDictEnObjeto(convertirRowEnDict(resultado))
+
+
+def convertirRowEnDict(row) -> Dict[str, Any]:
+    return dict(zip(row.keys(), row))
+
+
+def convertirDictEnObjeto(datos:Dict) ->MateriaPrima:
+    objeto = MateriaPrima()
+    objeto.materia_prima_id = datos['materia_prima_id']
+    objeto.sku = datos['sku']
+    objeto.nombre = datos['nombre']
+    objeto.fecha_registro = datos['fecha_registro']
+    objeto.unidad = datos['unidad']
+    objeto.costo_unitario = datos['costo_unitario']
+    objeto.cantidad = datos['cantidad']
+    objeto.disponible = datos['disponible']
+    objeto.reservado = datos['reservado']
+    objeto.estado = datos['estado']
+    objeto.dias_vida_util = datos['dias_vida_util']
+    return objeto
