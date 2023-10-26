@@ -28,7 +28,7 @@ def main():
         # print(values)
         if event is not None and event.startswith('evt:'):
             cmd = dict([tuple(part.split(':')) for part in event.split(';')])
-            if cmd['evt'] == 'product':
+            if cmd['evt'] == 'producto':
                 aux_window = producto_controlador.procesar(cmd=cmd,
                                                            valores=values,
                                                            conn=conn,

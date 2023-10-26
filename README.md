@@ -12,9 +12,8 @@ Ingeniería Industiral de la Universidad de Costa Rica.
 En el desarrollo de esta solución se está utilizando las siguientes tecnologías:
 
 - Python 3.10+
-- SQLite 3
+- SQLite 3.X
 - PySimpleGUI
-- Jinja
 
 ## Módulos planificados y componentes de la aplicación
 

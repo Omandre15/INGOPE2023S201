@@ -23,7 +23,6 @@ def crear_ventana_listado(conn=None):
         [
             psg.Table(values=data_values,
                       headings=encabezado,
-                      # size = (800, 600),
                       max_col_width=30,
                       num_rows=25,
                       col_widths=col_widths,
@@ -32,7 +31,6 @@ def crear_ventana_listado(conn=None):
                       enable_events=True,
                       select_mode=psg.TABLE_SELECT_MODE_BROWSE,
                       key='evt:{};det:{};act:{}'.format(obtener_alias_controlador(),'list','list'))
-            #key = 'evt:mat_pri;det:list;act:list')
         ],
         crear_botones_crud_salir(obtener_alias_controlador(), obtener_etiqueta_mensaje()),
         [psg.Input(visible=False, key='-cmd-', default_text='crud-{}'.format(obtener_alias_controlador()))]
@@ -46,8 +44,6 @@ def crear_ventana_listado(conn=None):
         , size=(None, None)
         , modal=True
     )
-    # w.Maximize()
-
     return w
 
 
@@ -108,7 +104,6 @@ def crear_ventana_registro():
                    , resizable=True
                    , size=(None, None)
                    , modal=True)
-    # w.Maximize()
     return w
 
 
@@ -176,7 +171,6 @@ def crear_ventana_actualizacion(dato:MateriaPrima):
                    , resizable=True
                    , size=(None, None)
                    , modal=True)
-    # w.Maximize()
     return w
 
 
@@ -208,7 +202,6 @@ def crear_ventana_eliminacion(dato:MateriaPrima):
                        image_data=icon_general_aceptar,
                        button_color='DodgerBlue',
                        key='evt:{};det:{};act:{}'.format(obtener_alias_controlador(), 'delete', 'ok')),
-                       #key='evt:mat_pri;det:delete;act:ok'),
             psg.Button('', tooltip='Salir', expand_x=True, key='Salir', image_data=icon_general_cancelar,
                        button_color='tomato')
         ]
@@ -220,5 +213,4 @@ def crear_ventana_eliminacion(dato:MateriaPrima):
                    , resizable=True
                    , size=(None, None)
                    , modal=True)
-    # w.Maximize()
     return w

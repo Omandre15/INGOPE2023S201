@@ -1,35 +1,47 @@
+from typing import Tuple, Optional
+
 import materia_prima.vista as vistas
 import materia_prima.consultas as consultas
 import utils.validaciones as utils_validacion
 import utils.ventana as utils_ventana
-from materia_prima.materia_prima import MateriaPrima
+
 
 import PySimpleGUI as psg
 
+from materia_prima.materia_prima import MateriaPrima
 
-def listar_mensajes_errores_actualizacion():
+
+def obtener_alias_controlador() -> str:
+    return 'mat_pri'
+
+
+def listar_mensajes_errores_actualizacion() -> Tuple[str, ...]:
     # debe corresponder a lista de validación
-    return ('Revise SKU', 'Revise el nombre', 'Revise la cantidad', 'Revise la unidad',
-            'Revise el costo unitario', 'Revise el estado')
+    return ('Revise SKU',
+            'Revise el nombre',
+            'Revise la cantidad',
+            'Revise la unidad',
+            'Revise el costo unitario',
+            'Revise el estado')
 
 
 def validar_condiciones_actualizacion(dato: MateriaPrima):
     if dato:
         # tiene que coincidir con el orden y cantidad de los mensajes en def listar_mensajes_errores_actualizacion()
         validacion = (
-            not utils_validacion.validar_texto_vacio(dato.sku),  # sku
-            not utils_validacion.validar_texto_vacio(dato.nombre),  # nombre
-            utils_validacion.validar_numero_real(dato.cantidad),  # cantidad
-            not utils_validacion.validar_texto_vacio(dato.unidad),  # unidad
-            utils_validacion.validar_numero_real(dato.costo_unitario),  # costo_unitario
-            not utils_validacion.validar_texto_vacio(dato.estado)  # estado
+            not utils_validacion.validar_texto_vacio(dato.sku),
+            not utils_validacion.validar_texto_vacio(dato.nombre),
+            utils_validacion.validar_numero_real(dato.cantidad),
+            not utils_validacion.validar_texto_vacio(dato.unidad),
+            utils_validacion.validar_numero_real(dato.costo_unitario),
+            not utils_validacion.validar_texto_vacio(dato.estado)
         )
         return validacion
     else:
         return ()
 
 
-def validar_actualizacion(dato: MateriaPrima):
+def validar_actualizacion(dato: MateriaPrima) -> bool:
     if dato:
         validacion = validar_condiciones_creacion(dato)
         return all(validacion)
@@ -37,13 +49,13 @@ def validar_actualizacion(dato: MateriaPrima):
         return False
 
 
-def listar_mensajes_errores_creacion():
+def listar_mensajes_errores_creacion() -> Tuple[str, ...]:
     # debe corresponder a lista de validación
     return ('Revise SKU', 'Revise el nombre', 'Revise la cantidad', 'Revise la unidad', 'Revise el precio',
             'Revise el costo unitario', 'Revise el estado')
 
 
-def validar_condiciones_creacion(dato: MateriaPrima):
+def validar_condiciones_creacion(dato: MateriaPrima) -> Optional[Tuple[bool, ...]]:
     if dato:
         validacion = (
             not utils_validacion.validar_texto_vacio(dato.sku),  # sku
@@ -61,7 +73,7 @@ def validar_condiciones_creacion(dato: MateriaPrima):
         return None
 
 
-def validar_creacion(dato: MateriaPrima):
+def validar_creacion(dato: MateriaPrima) -> bool:
     if dato:
         validacion = validar_condiciones_creacion(dato)
         return all(validacion)
@@ -78,30 +90,30 @@ def procesar(
         conn=None
 ):
     ventana = None
-    if cmd['evt'] != 'mat_pri':
+    if cmd['evt'] != obtener_alias_controlador():
         psg.popup_error('Intentando procesar un evento de producto, pero se envió otro evento', 'Error de programación')
     else:
         if cmd['det'] == 'list' and cmd['act'] == 'create':
             ventana = vistas.crear_ventana_registro()
         elif cmd['det'] == 'list' and cmd['act'] == 'update':
-            nombre_tabla = 'evt:mat_pri;det:list;act:list'
+            nombre_tabla = 'evt:{};det:list;act:list'.format(obtener_alias_controlador())
             data_selected = utils_ventana.obtener_datos_seleccionado_tabla(ventana=ventana_secundaria,
                                                                            nombre_tabla=nombre_tabla, valores=valores)
             if data_selected:
                 selected = int(data_selected[0][0])
-                dato:MateriaPrima = consultas.cargar(conn=conn, id=selected)
+                dato: MateriaPrima = consultas.cargar(conn=conn, id=selected)
                 ventana = vistas.crear_ventana_actualizacion(dato)
             else:
                 psg.popup('No se ha seleccionado un dato', title='Paso obligatorio')
 
 
         elif cmd['det'] == 'list' and cmd['act'] == 'delete':
-            nombre_tabla = 'evt:mat_pri;det:list;act:list'
+            nombre_tabla = 'evt:{};det:list;act:list'.format(obtener_alias_controlador())
             data_selected = utils_ventana.obtener_datos_seleccionado_tabla(ventana=ventana_secundaria,
                                                                            nombre_tabla=nombre_tabla, valores=valores)
             if data_selected:
                 selected = int(data_selected[0][0])
-                dato:MateriaPrima = consultas.cargar(conn=conn, id=selected)
+                dato: MateriaPrima = consultas.cargar(conn=conn, id=selected)
                 ventana = vistas.crear_ventana_eliminacion(dato)
             else:
                 psg.popup('No se ha seleccionado un dato', title='Paso obligatorio')
@@ -127,7 +139,7 @@ def procesar(
                     ventana_actual.close()
                     ventana_actual = None
                     datos = consultas.cargar_tabla(conn)
-                    ventana_secundaria['evt:mat_pri;det:list;act:list'].update(values=datos)
+                    ventana_secundaria['evt:{};det:list;act:list'.format(obtener_alias_controlador())].update(values=datos)
                     ventana = ventana_secundaria
                 else:
                     msg = msg.replace('UNIQUE constraint failed:',
@@ -160,7 +172,7 @@ def procesar(
             if estado_activo:
                 materia_prima.estado = 'activo'
             elif estado_inactivo:
-                materia_prima. estado = 'inactivo'
+                materia_prima.estado = 'inactivo'
             else:
                 materia_prima.estado = ''
 
@@ -170,7 +182,7 @@ def procesar(
                     ventana_actual.close()
                     ventana_actual = None
                     datos = consultas.cargar_tabla(conn)
-                    ventana_secundaria['evt:mat_pri;det:list;act:list'].update(values=datos)
+                    ventana_secundaria['evt:{};det:list;act:list'.format(obtener_alias_controlador())].update(values=datos)
                     ventana = ventana_secundaria
                 else:
                     msg = msg.replace('UNIQUE constraint failed:',
@@ -196,7 +208,7 @@ def procesar(
             ventana_actual.close()
             ventana_actual = None
             datos = consultas.cargar_tabla(conn)
-            ventana_secundaria['evt:mat_pri;det:list;act:list'].update(values=datos)
+            ventana_secundaria['evt:{};det:list;act:list'.format(obtener_alias_controlador())].update(values=datos)
             ventana = ventana_secundaria
 
     return ventana
